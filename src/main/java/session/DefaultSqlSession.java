@@ -1,5 +1,6 @@
 package session;
 
+import Transactional.TransactionManage;
 import config.Configuration;
 import excutor.Excutor;
 import mapper.MappedStatement;
@@ -9,6 +10,7 @@ import mapper.SqlCommandType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import java.util.List;
  */
 @Component("defaultSqlSession")
 public class DefaultSqlSession<T> implements SqlSession {
+
     @Autowired
     private Configuration configuration;
     //记得注入
@@ -34,7 +37,7 @@ public class DefaultSqlSession<T> implements SqlSession {
     }
 
     public int update(String name, Object model) {
-        int result ;
+        int result;
         MappedStatement mappedStatement = configuration.getMappedStatement(name);
         String sql = mappedStatement.getResource();
         SqlCommandType sqlCommandType = mappedStatement.getSqlCommandType();
@@ -60,7 +63,6 @@ public class DefaultSqlSession<T> implements SqlSession {
     }
 
 
-
     /**
      * @param name
      * @param model
@@ -76,7 +78,7 @@ public class DefaultSqlSession<T> implements SqlSession {
         SqlCommandType sqlCommandType = mappedStatement.getSqlCommandType();
         Class<?> mapperClass = mappedStatement.getMapperClass();
         try {
-            result = (List<T>) excutor.executeSelect(this, mapperClass,sqlCommandType, sql, model, tClass);
+            result = (List<T>) excutor.executeSelect(this, mapperClass, sqlCommandType, sql, model, tClass);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -86,7 +88,6 @@ public class DefaultSqlSession<T> implements SqlSession {
     }
 
     /**
-     *
      * @param name
      * @param model
      * @param tClass
@@ -100,12 +101,16 @@ public class DefaultSqlSession<T> implements SqlSession {
         Class<?> mapperClass = mappedStatement.getMapperClass();
         SqlCommandType sqlCommandType = mappedStatement.getSqlCommandType();
         try {
-            result = excutor.executeSelectOne(this, mapperClass,sqlCommandType, sql, model, tClass);
+            result = excutor.executeSelectOne(this, mapperClass, sqlCommandType, sql, model, tClass);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
         return result;
+    }
+
+    public Connection getConnection() {
+        return excutor.getTransactionManage().getCurrentThreadConnection();
     }
 
 

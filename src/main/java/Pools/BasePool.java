@@ -46,7 +46,6 @@ public abstract class BasePool implements Pool {
     //默认步长为4
     private int step;
 
-
     public BasePool(DataSource dataSource, BlockingQueue blockingQueue) {
         this(dataSource, blockingQueue, dataSource.getMinConnection(), 4);
     }
@@ -135,43 +134,49 @@ public abstract class BasePool implements Pool {
     }
 
     /**
-     * 归还连接时，可能会由于在获取连接过程中，由于
-     * 连接池的扩容操作，而导致线程池大小超出规定最大大小
+     *
+     * 归还连接，
      *
      * @param connection
      * @return
      */
     public boolean relasePoolConnection(PoolConnection connection) {
 
-        out:
-        while (true) {
-            int t = poolSize.get();
-            if (t <= dataSource.getMaxConnection()) {
-
-                //重复判断
-                if (poolSize.compareAndSet(t, t + 1)) {
-                    blockingQueue.add(connection);
-                    return true;
-                } else {
-                    continue out;
-                }
-            }
-            //大于，则不用归还了
-            break;
-        }
-        return false;
+        blockingQueue.add(connection);
+        return true;
     }
 
+    //释放连接，正如你所料的 我们依靠poolSize来确保连接池大小
+    //所以在释放连接失败时，poolSize的值应该减一，为了避免被错误的
+    //使用，我们增加限制，传入空值时，将会抛出异常，这里并没有
+    //做强制的保证，如果用户归还的连接不是连接池中的连接 我们也会
+    //确保它归还成功，错误的使用该方法该会造成连接池实际数量
+    //大于现有数量，其实可以使用一个ThrealLocal 保存一个标志
+    //当线程获取连接时，将标志设置为true,只有带有标志的线程才能归还
+    //并且归还后需要重新置为false，考虑到该线程池，是内置使用，
+    //这里并没有实现该功能，如果需求特殊，后续考虑补加
     public boolean relaseConnection(Connection connection) {
+        if (connection == null) {
+            throw new RuntimeException("请确保释放的连接不为空");
+        }
         //在归还前 确保归还的连接可用，
+        boolean falg = false; //poolSize 减一是否成功的标志
         try {
-            if (connection == null || connection.isClosed()) {
+
+            if (connection.isClosed()) { //连接已关闭，但连接池大小小于规定最小数目
+                //连接释放失败，直接尺寸减一
+                poolSize.getAndDecrement();
+                falg = true;
                 return false;
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        }
 
+        } finally {
+            if (!falg) {
+                poolSize.getAndDecrement();
+            }
+        }
         return relasePoolConnection(new PoolConnection(connection));
     }
 

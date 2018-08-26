@@ -1,5 +1,7 @@
 package Pools;
 
+import Transactional.TransactionManage;
+
 import java.sql.Connection;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -20,6 +22,8 @@ public class PoolConnection {
     // false表示连接不可用，表明连接已经被占用
     //true表示该连接未被占用，可以正常使用
     private volatile boolean isAvailable;
+    //管理该连接的事务管理器，只有从事务管理器中获取的连接才会被设置 暂未使用
+    // private TransactionManage transactionManage;
 
     //创建时，不带参数默认没有被使用
     public PoolConnection(Connection connection) {
@@ -51,4 +55,6 @@ public class PoolConnection {
     public boolean isAvailable() {
         return isAvailable;
     }
+
+
 }

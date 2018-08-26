@@ -6,6 +6,7 @@ import anno.ORMSelect;
 import config.Configuration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 import session.SqlSession;
 
 import java.util.ArrayList;

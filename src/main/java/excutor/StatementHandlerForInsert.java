@@ -20,7 +20,7 @@ public class StatementHandlerForInsert implements StatementHandler {
         //获取符合JDBC规范的sql语句
         String sql = sqlHandler.handSql(sqlSession, mapperClass, PreSql, model);
         //获取PreparedStatement
-        PreparedStatement preparedStatement = JDBCUtil.getStmt(sql);
+        PreparedStatement preparedStatement = JDBCUtil.getStmt(sqlSession.getConnection(), sql);
         if (preparedStatement == null) {
             throw new RuntimeException("preparedStatement is null");
         }

@@ -108,7 +108,7 @@ public class DefaultResultHandler implements ResultHandler {
             throw new RuntimeException(e);
         } finally {
             //释放连接
-            JDBCUtil.relaseConnection(JDBCUtil.getConnectionFromThreadLocal());
+
         }
 
 

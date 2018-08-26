@@ -2,6 +2,7 @@ package session;
 
 import config.Configuration;
 
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ public interface SqlSession {
     public <T> T getMapper(Class<T> clazz);
 
 
-    public int insert(String name,Object model);
+    public int insert(String name, Object model);
 
     public int delete(String name, Object model);
 
@@ -30,8 +31,10 @@ public interface SqlSession {
      */
     public <T> List<T> selectList(String name, Object model, Class<T> tClass);
 
-    public <T> T selectOne(String name,Object model, Class<T> tClass);
+    public <T> T selectOne(String name, Object model, Class<T> tClass);
 
+
+    public Connection getConnection();
 
     public Configuration getConfiguration();
 

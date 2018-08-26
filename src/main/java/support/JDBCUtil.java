@@ -7,8 +7,10 @@ package support;
 
 import Pools.DefaultPoolFactory;
 import Pools.Pool;
+import Transactional.TransactionManage;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -29,6 +31,8 @@ import java.util.Map;
 
 
 public class JDBCUtil {
+
+
     //默认连接池
     private static Pool pool = DefaultPoolFactory.getDefaultPool();
 
@@ -38,21 +42,22 @@ public class JDBCUtil {
 
     public static void main(String[] args) throws Exception {
         String sql = "insert into TestPerson values(?,?,?)";
-
-        PreparedStatement preparedStatement = getStmt(sql);
+        /*
+        PreparedStatement preparedStatement = getStmt(new Con sql);
         preparedStatement.setObject(1, 14);
         preparedStatement.setObject(2, 4);
         preparedStatement.setObject(3, "1$4");
         preparedStatement.executeUpdate();
-
+*/
 
     }
 
 
     public static Connection getConn() throws SQLException {
         Connection connection;
-        connection = getConnectionFromThreadLocal();
-        if (connection != null) {
+        // connection = getConnectionFromThreadLocal();
+
+      /*   if (connection != null) {
             return connection;
         }
         try {
@@ -65,20 +70,18 @@ public class JDBCUtil {
             logger.error("获取数据库连接异常：" + re.getMessage(), re);
             throw re;
         }
-        return connection;
+        */
+        return null;
     }
 
-    public static Connection getConnectionFromThreadLocal() {
-        return threadLocal.get();
-    }
-
-    public static PreparedStatement getStmt(String sql) throws SQLException {
+    public static PreparedStatement getStmt(Connection connection, String sql) throws SQLException {
         PreparedStatement preparedStatement = null;
         try {
-            Connection connection = getConn();
             preparedStatement = connection.prepareStatement(sql);
         } catch (RuntimeException re) {
             logger.error("获取数据库处理命令异常：" + re.getMessage(), re);
+
+            logger.error("释放掉了当前连接");
             throw re;
         }
         return preparedStatement;
@@ -128,12 +131,13 @@ public class JDBCUtil {
             if (preparedStatement != null) {
                 preparedStatement.close();
             }
-            Connection connection = threadLocal.get();
+
+           /*  Connection connection = threadLocal.get();
             if (connection != null) {
                 threadLocal.remove();
                 pool.relaseConnection(connection);
             }
-
+*/
         }
         return iNum;
     }
@@ -155,6 +159,7 @@ public class JDBCUtil {
             if (preparedStatement != null) {
                 preparedStatement.close();
             }
+            /*
             Connection connection = threadLocal.get();
             if (connection != null) {
 
@@ -162,9 +167,11 @@ public class JDBCUtil {
                 //这里不需要释放连接，可能是连接出现问题，为确保安全直接置为空
                 connection = null;
             }
+  */
 
             throw re;
         }
+
         return resultSet;
     }
 

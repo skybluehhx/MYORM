@@ -1,8 +1,10 @@
 package excutor;
 
+import Transactional.TransactionManage;
 import mapper.MapperModelParams;
 import mapper.SqlCommandType;
 import org.apache.ibatis.jdbc.SQL;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import session.SqlSession;
 import support.JDBCUtil;
@@ -19,6 +21,8 @@ import java.util.List;
  */
 @Component("excutor")
 public class DefaultExcutor implements Excutor {
+    @Autowired
+    private TransactionManage transactionManage;
 
     private ParameterHandler parameterHandler = new DefaultParameterHandler();
     private StatementHandler statementHandler = new DefaultStatementHandler();
@@ -68,6 +72,7 @@ public class DefaultExcutor implements Excutor {
         return null;
     }
 
+
     private <T> List<T> doExecuteSelect(SqlSession sqlSession, Class<?> mapperClass, PreparedStatement preparedStatement, Class<T> tClass) {
 
 
@@ -77,15 +82,20 @@ public class DefaultExcutor implements Excutor {
             resultSet = JDBCUtil.selectRecord(preparedStatement);
         } catch (SQLException e) {
             e.printStackTrace();
+            transactionManage.realseCurrentThreadConnection();
             throw new RuntimeException(e);
         }
-        return resultHandler.handlerResult(sqlSession, mapperClass, resultSet);
+        List<T> list = resultHandler.handlerResult(sqlSession, mapperClass, resultSet);
+        //释放连接
+        transactionManage.realseCurrentThreadConnection();
+        return list;
         // return JDBCUtil.getListCommBean(preparedStatement, tClass);
 
     }
 
 
     private int executeInsert(SqlSession sqlSession, Class<?> mapperClass, SqlCommandType sqlCommandType, String sql, Object model) throws SQLException {
+
         return executeUpdate(sqlSession, mapperClass, sqlCommandType, sql, model);
     }
 
@@ -96,8 +106,17 @@ public class DefaultExcutor implements Excutor {
     }
 
 
-    private int doExecuteUpdate(PreparedStatement preparedStatement) throws SQLException {
-        return JDBCUtil.updateRecord(preparedStatement);
+    private int doExecuteUpdate(PreparedStatement preparedStatement) {
+        int result = 0;
+        try {
+            result = JDBCUtil.updateRecord(preparedStatement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            transactionManage.realseCurrentThreadConnection();
+            throw new RuntimeException(e);
+        }
+        transactionManage.realseCurrentThreadConnection();
+        return result;
 
     }
 
@@ -120,6 +139,9 @@ public class DefaultExcutor implements Excutor {
         return statement;
     }
 
+    public TransactionManage getTransactionManage() {
+        return this.transactionManage;
+    }
 
     public void setParameterHandler(ParameterHandler parameterHandler) {
         this.parameterHandler = parameterHandler;

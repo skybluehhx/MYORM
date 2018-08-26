@@ -31,4 +31,10 @@
         <property name="timeout" value="${jdbc.timeout}"></property>
 
     </bean>
+
+    <bean id="pool" class="Pools.DefaultPool">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+
 </beans>
