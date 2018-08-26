@@ -1,22 +1,27 @@
 package Pools;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /**
  * Created by zoujianglin
  * 2018/8/25 0025.
  */
+@Component
 public class DefaultPoolFactory {
 
     private static volatile Pool defaultpool;
 
-    private DataSource dataSource;
+    @Autowired
+    private static DataSource dataSource;
 
     public DefaultPoolFactory(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-   public   Pool getDefaultPool() {
+    public static Pool getDefaultPool() {
         if (defaultpool == null) {
-            synchronized (this) {
+            synchronized (DefaultPoolFactory.class) {
                 if (defaultpool == null) {
                     defaultpool = new DefaultPool(dataSource);
                 }
@@ -29,7 +34,11 @@ public class DefaultPoolFactory {
 
     }
 
+    public DataSource getDataSource() {
+        return dataSource;
+    }
 
-
-
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 }

@@ -32,7 +32,7 @@ public class DefaultExcutor implements Excutor {
      *
      * @param sqlCommandType
      * @param sql
-     * @param model 传入的实体类
+     * @param model          传入的实体类
      * @return
      * @throws SQLException
      */
@@ -55,7 +55,6 @@ public class DefaultExcutor implements Excutor {
     }
 
 
-
     public <T> List<T> executeSelect(SqlSession sqlSession, Class<?> mapperClass, SqlCommandType sqlCommandType, String sql, Object model, Class<T> tClass) throws SQLException {
         PreparedStatement preparedStatement = dopreparedstatement(sqlSession, mapperClass, sqlCommandType, sql, model);
         return doExecuteSelect(sqlSession, mapperClass, preparedStatement, tClass);
@@ -72,9 +71,10 @@ public class DefaultExcutor implements Excutor {
     private <T> List<T> doExecuteSelect(SqlSession sqlSession, Class<?> mapperClass, PreparedStatement preparedStatement, Class<T> tClass) {
 
 
-        ResultSet resultSet ;
+        ResultSet resultSet;
         try {
-            resultSet = preparedStatement.executeQuery();
+            //委托JDBCUtil进行查询操作
+            resultSet = JDBCUtil.selectRecord(preparedStatement);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -96,7 +96,6 @@ public class DefaultExcutor implements Excutor {
     }
 
 
-
     private int doExecuteUpdate(PreparedStatement preparedStatement) throws SQLException {
         return JDBCUtil.updateRecord(preparedStatement);
 
@@ -115,7 +114,7 @@ public class DefaultExcutor implements Excutor {
     private PreparedStatement dopreparedstatement(SqlSession sqlSession, Class<?> mapperClass, SqlCommandType sqlCommandType, String sql, Object model) throws SQLException {
         PreparedStatement statement;
 
-        statement =statementHandler.getStatement(sqlSession, mapperClass, sql, model);
+        statement = statementHandler.getStatement(sqlSession, mapperClass, sql, model);
         //设置参数,这里没有做特殊处理
         statement = parameterHandler.setSqlParameter(sqlSession, mapperClass, statement, model);
         return statement;

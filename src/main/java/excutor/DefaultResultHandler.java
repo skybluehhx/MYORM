@@ -5,6 +5,7 @@ import mapper.MapperRegistry;
 import org.apache.commons.beanutils.BeanUtils;
 import session.SqlSession;
 import support.Converter;
+import support.JDBCUtil;
 import support.StringsUtil;
 import test.User;
 
@@ -63,6 +64,7 @@ public class DefaultResultHandler implements ResultHandler {
 
         try {
 
+            System.out.println(resultSet.getStatement().getConnection().isClosed());
             //遍历获取每一行，每一行对应一个model对象
             while (resultSet.next()) {
                 //获取model实例
@@ -90,6 +92,8 @@ public class DefaultResultHandler implements ResultHandler {
                 //加入到集合当中
                 modelList.add(t);
             }
+
+
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -101,6 +105,10 @@ public class DefaultResultHandler implements ResultHandler {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            //释放连接
+            JDBCUtil.relaseConnection(JDBCUtil.getConnectionFromThreadLocal());
         }
 
 

@@ -18,7 +18,7 @@ public class TestPool {
 
 
         Pool pool = new DefaultPool(dataSource);
-        PoolConnection poolConnection = pool.getConnection();
+     //   PoolConnection poolConnection = pool.getConnection();
 
     }
 

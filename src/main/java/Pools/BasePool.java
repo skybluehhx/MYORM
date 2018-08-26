@@ -2,6 +2,8 @@ package Pools;
 
 import ORMException.DestoryPoolException;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -16,10 +18,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 2018/8/25 0025.
  * 提供连接池的基本功能
  */
+@Component
 public abstract class BasePool implements Pool {
 
     private static Logger logger = Logger.getLogger(BasePool.class);
     //数据源，获取连接数据库的基本信息
+    @Autowired
     private DataSource dataSource;
     //用来持有连接池连接
     private final BlockingQueue<PoolConnection> blockingQueue;
@@ -71,7 +75,7 @@ public abstract class BasePool implements Pool {
      *
      * @return
      */
-    public PoolConnection getConnection() {
+    public PoolConnection getPoolConnection() {
         if (!isDestroy.get()) {
             try {
 
@@ -126,7 +130,7 @@ public abstract class BasePool implements Pool {
         return poolSize.get();
     }
 
-    public int freeConnectioNums() {
+    public int getFreeConnectioNums() {
         return blockingQueue.size();
     }
 

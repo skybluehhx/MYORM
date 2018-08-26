@@ -8,13 +8,20 @@ package Pools;
  */
 public class DataSource {
 
-    private final String driverClassName;
-    private final String userName;
-    private final String password;
-    private final String url;
+    private  String driverClassName;
+    private  String userName;
+    private  String password;
+    private  String url;
     private int maxConnection = 10;
     private int minConnection = 20;
     private int timeout;
+
+
+    public DataSource(){
+
+    }
+
+
 
     protected DataSource(String driverClassName, String userName, String password, String url) {
         this.driverClassName = driverClassName;
@@ -23,6 +30,21 @@ public class DataSource {
         this.url = url;
     }
 
+    public void setDriverClassName(String driverClassName) {
+        this.driverClassName = driverClassName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public String getDriverClassName() {
         return driverClassName;

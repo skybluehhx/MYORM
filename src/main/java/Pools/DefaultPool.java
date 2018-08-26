@@ -1,13 +1,15 @@
 package Pools;
 
+import org.springframework.stereotype.Component;
+
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by zoujianglin
  * 2018/8/25 0025.
  */
-public class DefaultPool extends BasePool {
 
+public class DefaultPool extends BasePool {
 
 
     public DefaultPool(DataSource dataSource) {
@@ -18,10 +20,6 @@ public class DefaultPool extends BasePool {
         super(dataSource, new LinkedBlockingQueue(), times);
 
     }
-
-
-
-
 
 
 }
