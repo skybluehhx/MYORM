@@ -6,11 +6,7 @@ import anno.ORMSelect;
 import config.Configuration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
 import session.SqlSession;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Administrator on 2018/8/19 0019.
@@ -23,6 +19,10 @@ public class test {
         ApplicationContext context = new ClassPathXmlApplicationContext("ApplicationContext.xml");
         Configuration configuration = (Configuration) context.getBean("configuration");
 
+
+        // test1.test();
+        //TransactionAspect transactionAspect = (TransactionAspect) context.getBean("transactionAspect");
+      //  org.apache.ibatis.session.SqlSession sqlSession1;
         SqlSession sqlSession = (SqlSession) context.getBean("defaultSqlSession");
         UserDao u = sqlSession.getMapper(UserDao.class);
         User user = new User();
@@ -41,6 +41,7 @@ public class test {
             System.out.println(user.getName().get(i));
         }
         System.out.println(user.getId() + " age" + user.getMyAge() + user.getName().size());
+
         //  System.out.println(configuration.getMapperRegistry().hasMapper(UserDao.class));
         //System.out.println(configuration);
     /*   InputStream inStream = Thread.currentThread().getContextClassLoader()

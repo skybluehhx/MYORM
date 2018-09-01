@@ -21,19 +21,20 @@ public class TransactionAspect {
     private TransactionManage transactionManage;
 
     //public * *(..)
-    @Pointcut("execution(public * *(..))")
+    @Pointcut("execution( public * test.test. *(..))")
     public void pointCut() {
 
     }
 
-    @Around("pointCut()")
+    @Around("execution( public * test.UserDao.*(..))")
     public <T> T trancation(ProceedingJoinPoint pjp) {
         try {
-            transactionManage.beginTransactionForCurrentThread();
-            int a = 1 / 0;
-            T t = (T) pjp.proceed();
-            transactionManage.commitTracsactionForCurrentThread();
-            return t;
+            // transactionManage.beginTransactionForCurrentThread();
+            //int a = 1 / 0;
+            Object t = pjp.proceed();
+            //T t = (T) pjp.proceed();
+            //transactionManage.commitTracsactionForCurrentThread();
+            return (T) t;
         } catch (Throwable throwable) {
             System.out.println(throwable + "进行回滚操作");
             transactionManage.rollbackTracsactionForCurrentThread();
@@ -43,5 +44,11 @@ public class TransactionAspect {
         return null;
     }
 
+    public TransactionManage getTransactionManage() {
+        return transactionManage;
+    }
 
+    public void setTransactionManage(TransactionManage transactionManage) {
+        this.transactionManage = transactionManage;
+    }
 }

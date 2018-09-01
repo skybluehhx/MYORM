@@ -21,6 +21,7 @@ import java.util.List;
  */
 @Component("excutor")
 public class DefaultExcutor implements Excutor {
+
     @Autowired
     private TransactionManage transactionManage;
 
@@ -108,14 +109,24 @@ public class DefaultExcutor implements Excutor {
 
     private int doExecuteUpdate(PreparedStatement preparedStatement) {
         int result = 0;
+        transactionManage.beginTransactionForCurrentThread();
+        boolean flag = false;
         try {
             result = JDBCUtil.updateRecord(preparedStatement);
+            flag = true;
+            transactionManage.commitTracsactionForCurrentThread();
         } catch (SQLException e) {
             e.printStackTrace();
-            transactionManage.realseCurrentThreadConnection();
+
+
             throw new RuntimeException(e);
+        } finally {
+            if (flag) {
+                transactionManage.rollbackTracsactionForCurrentThread();
+            }
+            transactionManage.realseCurrentThreadConnection();
         }
-        transactionManage.realseCurrentThreadConnection();
+
         return result;
 
     }
@@ -137,6 +148,10 @@ public class DefaultExcutor implements Excutor {
         //设置参数,这里没有做特殊处理
         statement = parameterHandler.setSqlParameter(sqlSession, mapperClass, statement, model);
         return statement;
+    }
+
+    public void setTransactionManage(TransactionManage transactionManage) {
+        this.transactionManage = transactionManage;
     }
 
     public TransactionManage getTransactionManage() {

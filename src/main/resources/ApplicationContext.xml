@@ -11,6 +11,7 @@
 
     <import resource="ApplicationContext-jdbc.xml"></import>
     <context:component-scan
-            base-package="config,excutor,mapper,session,support,test,Pools,Transactional"></context:component-scan>
+            base-package="config,excutor,mapper,session,support,test,Pools,Transactional,Transactional.*"></context:component-scan>
     <!-- aop测试,需要引入aop命名空间 -->
+    <aop:aspectj-autoproxy/>
 </beans>
