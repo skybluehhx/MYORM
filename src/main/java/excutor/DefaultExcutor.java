@@ -121,7 +121,7 @@ public class DefaultExcutor implements Excutor {
 
             throw new RuntimeException(e);
         } finally {
-            if (flag) {
+            if (!flag) {
                 transactionManage.rollbackTracsactionForCurrentThread();
             }
             transactionManage.realseCurrentThreadConnection();

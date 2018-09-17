@@ -8,6 +8,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import session.SqlSession;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Administrator on 2018/8/19 0019.
  */
@@ -22,20 +25,22 @@ public class test {
 
         // test1.test();
         //TransactionAspect transactionAspect = (TransactionAspect) context.getBean("transactionAspect");
-      //  org.apache.ibatis.session.SqlSession sqlSession1;
+        //  org.apache.ibatis.session.SqlSession sqlSession1;
         SqlSession sqlSession = (SqlSession) context.getBean("defaultSqlSession");
         UserDao u = sqlSession.getMapper(UserDao.class);
         User user = new User();
-        //  List<String> list = new ArrayList<String>();
-        // list.add("1");
-        //list.add("4");
-        user.setId(17);
-        //user.setMyAge(6);
-        //user.setName(list);
+        List<String> list = new ArrayList<String>();
+        list.add("1");
+        list.add("4");
+        user.setId(11);
+        //  user.setMyAge(17);
+        user.setMyAge(6);
+        user.setName(list);
         //  user.setMyage(1);
         //u.add(user);
 
-        user = u.select(user);
+        u.add(user);
+        System.out.println(user);
 
         for (int i = 0; i < user.getName().size(); i++) {
             System.out.println(user.getName().get(i));

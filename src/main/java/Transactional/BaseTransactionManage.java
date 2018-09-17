@@ -70,7 +70,7 @@ public class BaseTransactionManage implements TransactionManage {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            realseCurrentThreadConnection();
+           // realseCurrentThreadConnection();
         }
         return false;
     }
@@ -87,7 +87,7 @@ public class BaseTransactionManage implements TransactionManage {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            realseCurrentThreadConnection();
+         //   realseCurrentThreadConnection();
         }
         return false;
 

@@ -43,11 +43,20 @@ public class User {
         MyAge = myAge;
     }
 
-    public List<String> getName() {
+   public List<String> getName() {
         return name;
-    }
+   }
 
     public void setName(List<String> name) {
         this.name = name;
+  }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", MyAge=" + MyAge +
+                ", name=" + name +
+                '}';
     }
 }
