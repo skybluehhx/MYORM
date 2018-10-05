@@ -11,6 +11,8 @@ public class MappedStatement {
     //保存所属的mapperClass
     private Class<?> mapperClass;
 
+    //参数列表
+
     //执行的sql命令语句
     private String resource;
     //所属的配置类

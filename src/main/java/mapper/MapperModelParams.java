@@ -2,7 +2,9 @@ package mapper;
 
 import support.Converter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,6 +21,8 @@ public class MapperModelParams {
     private final Map<String, Class<? extends Converter>> filedAndColumnConverter;
 
     private final ModelTOTableName modelTOTableName;
+    //sql上的参数，经过statementHandler后才会赋予值
+    private List prametersList = new ArrayList();
 
 
     private MapperModelParams() {
@@ -60,7 +64,7 @@ public class MapperModelParams {
     }
 
     /**
-     * @param fieldName      字段名
+     * @param fieldName  字段名
      * @param filedClass 字段类型
      * @return
      */
@@ -84,4 +88,16 @@ public class MapperModelParams {
     public Map<String, Class<? extends Converter>> getFiledAndColumnConverter() {
         return filedAndColumnConverter;
     }
+
+    public void addParameters(List othrelist) {
+        if (!prametersList.isEmpty()) {
+            throw new IllegalArgumentException("参数顺序添加异常");
+        }
+        prametersList.addAll(othrelist);
+    }
+
+    public List getParameters() {
+        return this.prametersList;
+    }
+
 }

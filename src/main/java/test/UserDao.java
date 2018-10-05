@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ORMMapper(User.class)
 public interface UserDao {
-
+    //模式匹配，进行设置值，
    @ORMInsert("insert into #{User} values( #{User.id},#{User.MyAge},#{User.name})")
     public int add(User user);
 

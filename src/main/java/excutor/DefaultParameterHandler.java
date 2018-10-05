@@ -30,25 +30,20 @@ public class DefaultParameterHandler implements ParameterHandler {
 
 
     public PreparedStatement setSqlParameter(SqlSession sqlSession, Class<?> mapperClass, PreparedStatement preparedStatement, Object model) throws SQLException {
-/*
-        //首先获取mapperRegistry注册中心
-        MapperRegistry mapperRegistry = sqlSession.getConfiguration().getMapperRegistry();
-        //获取mapper所绑定的model对象
-        Class<?> modelClass = mapperRegistry.getMapperModel().get(mapperClass);
 
-        //获取mapper所绑定的model对应数据库表的具体信息
-        Map<Class<?>, MapperModelParams> mapperModelToDB = mapperRegistry.getMapperModelToDB();
-
-        MapperModelParams mapperModelParams = mapperModelToDB.get(modelClass);
-        //获取每个字段上的参数类型转换器
-        Map<String, Class<?>>  filedAndColumnConverter= mapperModelParams.getFiledAndColumnConverter();
-
-*/
-        // PreparedStatement prepared = JDBCUtil.setParams(preparedStatement, params);
         if (preparedStatement == null) {
             throw new RuntimeException("preparedStatement is null");
         }
-        //默认不做任何处理
+        MapperRegistry mapperRegistry = sqlSession.getConfiguration().getMapperRegistry();
+        Map<Class<?>, MapperModelParams> mapperModelToDB = mapperRegistry.getMapperModelToDB();
+        Class<?> modelClass = mapperRegistry.getMapperModel().get(mapperClass);
+        MapperModelParams mapperModelParams = mapperModelToDB.get(modelClass);
+        List paramtersList = mapperModelParams.getParameters();
+        //注入参数
+        for (int i = 0; i < paramtersList.size(); i++) {
+            preparedStatement.setObject(i + 1, paramtersList.get(i));
+        }
+
         return preparedStatement;
     }
 

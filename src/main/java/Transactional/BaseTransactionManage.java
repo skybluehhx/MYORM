@@ -58,7 +58,7 @@ public class BaseTransactionManage implements TransactionManage {
     public boolean commitTracsactionForCurrentThread() {
         Connection connection = threadConnections.get();
         if (connection == null) {
-            throw new ConnectionUnopendException("连接未开启，使用事务前确保事务开启");
+          //  throw new ConnectionUnopendException("连接未开启，使用事务前确保事务开启");
         }
 
         try {

@@ -7,8 +7,11 @@ import session.SqlSession;
 import support.Converter;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by zoujianglin
@@ -18,6 +21,7 @@ import java.util.Set;
  */
 
 public class DefaultSqlHandler implements SqlHandler {
+    public String baseregex = "\\#\\{modelName\\.[a-zA-Z0-9]+\\}";
 
     public String handSql(SqlSession sqlSession, Class<?> mapperClass, String preSql, Object model) {
 
@@ -40,7 +44,7 @@ public class DefaultSqlHandler implements SqlHandler {
         //获取每个字段上的参数类型转换器
         Map<String, Class<? extends Converter>> filedAndColumnConverter = mapperModelParams.getFiledAndColumnConverter();
 
-        return doHandleSql(preSql, filedToDBColumn, modelTOTableName, filedAndColumnConverter, model);
+        return doHandleSql(preSql, filedToDBColumn, modelTOTableName, filedAndColumnConverter, model, mapperModelParams);
     }
 
     /**
@@ -48,63 +52,131 @@ public class DefaultSqlHandler implements SqlHandler {
      * @param filedToDBColumn
      * @return
      */
-    private String doHandleSql(String preSql, Map<String, String> filedToDBColumn, ModelTOTableName<String, String> modelTOTableName, Map<String, Class<? extends Converter>> filedAndColumnConverter, Object model) {
+    private String doHandleSql(String preSql, Map<String, String> filedToDBColumn, ModelTOTableName<String, String> modelTOTableName, Map<String, Class<? extends Converter>> filedAndColumnConverter, Object model, MapperModelParams mapperModelParams) {
+        String newSql = preSql;
         Set<String> filedNames = filedToDBColumn.keySet();
-        //先替换字段名
-        for (String filedName : filedNames) {
+        baseregex = baseregex.replace("modelName", modelTOTableName.getModelName());
+        Pattern p = Pattern.compile(baseregex);
+        Matcher m = p.matcher(preSql);
+        //替换回来以便复用
+        baseregex.replace(modelTOTableName.getModelName(), "modelName");
+
+        ArrayList arrayList = new ArrayList();//该arrayList存放着需要注入的参数值
+        //该步骤主要是将形如的格式为#{user.id}替换为？
+        while (m.find()) {
+            String filednameWithClass = m.group();
+            newSql = newSql.replace(filednameWithClass, "?");
+            //获取属性名
+            String filedName = filednameWithClass.substring(modelTOTableName.getModelName().length() + 3, filednameWithClass.length()-1).trim();
 
             try {
-                //数值从参数值中获取
                 Field field = model.getClass().getDeclaredField(filedName);
                 //开启访问权限
                 field.setAccessible(true);
+                //获取指定的值
                 Object fieldValue = field.get(model);
                 //字段值为空，说明该字段值没有被当做参数传入
                 if (fieldValue == null) {
-                    continue;
+                    throw new IllegalArgumentException("缺少参数值");
                 }
-                //属性值不为空，说明可能在sql语句中
-                //先替换字段名
-                String replace = "\\#" + "\\{" + filedName + "\\}";
-                String columnName = filedToDBColumn.get(filedName);
-                //字段名替换完成
-                preSql = preSql.replaceAll(replace, columnName);
-
-                //接着需要替换插入值 ，值一般的形式为#{user.id}
-                String replaceFiledValue = "\\#" + "\\{" + modelTOTableName.getModelName() + "." + filedName + "\\}";
-                //获取字段上的转换器，需要判断是否有转换器
                 Class<? extends Converter> converter = filedAndColumnConverter.get(filedName);
 
 
-                String converString = "";
+                Object converString = "";
                 if (converter != null) { //有转换器
                     //将model该属性的值，进行转换，与数据库中的字段值想对应
-                    converString = "'" + converter.newInstance().ConverterColumn(fieldValue) + "'";
+                    converString = converter.newInstance().ConverterColumn(fieldValue);
                 } else { //没有转换器，直接获取字段值，（说明为基本类型(或者为其包装类型)，复杂类型必须使用转换器）
-                    converString = field.get(model).toString();
+                    converString = field.get(model);
                 }
-                preSql = preSql.replaceAll(replaceFiledValue, converString);
+                arrayList.add(converString);
 
-            } catch (InstantiationException e) {
+            } catch (NoSuchFieldException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
-                throw new RuntimeException(e + "没有权限访问");
-            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
                 e.printStackTrace();
-                throw new RuntimeException(e + "没有这样的属性");
+                throw new RuntimeException(e);
             }
 
-
         }
-        //接着替换类似#{user.id} 这些将会使用注入的方式进行设置值，
-
-
-        //最后 替换表名
+        //添加要注入的参数
+        mapperModelParams.addParameters(arrayList);
+        //替换字段
+        newSql = replaceFiledName(newSql, filedNames, filedToDBColumn);
+        //最后替换表名
         String replace = "\\#" + "\\{" + modelTOTableName.getModelName() + "\\}";
-        String compeleteSql = preSql.replaceAll(replace, modelTOTableName.getTableName());
+        String compeleteSql = newSql.replaceAll(replace, modelTOTableName.getTableName());
         return compeleteSql;
+
+        /**
+
+         //先替换字段名
+         for (String filedName : filedNames) {
+
+         try {
+         //数值从参数值中获取
+         Field field = model.getClass().getDeclaredField(filedName);
+         //开启访问权限
+         field.setAccessible(true);
+         Object fieldValue = field.get(model);
+         //字段值为空，说明该字段值没有被当做参数传入
+         if (fieldValue == null) {
+         continue;
+         }
+         //属性值不为空，说明可能在sql语句中
+         //先替换字段名
+         String replace = "\\#" + "\\{" + filedName + "\\}";
+         String columnName = filedToDBColumn.get(filedName);
+         //字段名替换完成
+         preSql = preSql.replaceAll(replace, columnName);
+
+         //接着需要替换插入值 ，值一般的形式为#{user.id}
+         String replaceFiledValue = "\\#" + "\\{" + modelTOTableName.getModelName() + "." + filedName + "\\}";
+         //获取字段上的转换器，需要判断是否有转换器
+         Class<? extends Converter> converter = filedAndColumnConverter.get(filedName);
+
+
+         String converString = "";
+         if (converter != null) { //有转换器
+         //将model该属性的值，进行转换，与数据库中的字段值想对应
+         converString = "'" + converter.newInstance().ConverterColumn(fieldValue) + "'";
+         } else { //没有转换器，直接获取字段值，（说明为基本类型(或者为其包装类型)，复杂类型必须使用转换器）
+         converString = field.get(model).toString();
+         }
+
+
+         Pattern p = Pattern.compile(baseregex);
+         //Matcher m = p.matcher(s);
+
+
+         preSql = preSql.replaceAll(replaceFiledValue, converString);
+
+         } catch (InstantiationException e) {
+         e.printStackTrace();
+         throw new RuntimeException(e);
+         } catch (IllegalAccessException e) {
+         e.printStackTrace();
+         throw new RuntimeException(e + "没有权限访问");
+         } catch (NoSuchFieldException e) {
+         e.printStackTrace();
+         throw new RuntimeException(e + "没有这样的属性");
+         }
+
+
+         }
+
+         //接着替换类似#{user.id} 这些将会使用注入的方式进行设置值，
+
+
+         //最后 替换表名
+         String replace = "\\#" + "\\{" + modelTOTableName.getModelName() + "\\}";
+         String compeleteSql = newSql.replaceAll(replace, modelTOTableName.getTableName());
+         return compeleteSql;
+         **/
         /*
         String content = "id";
         String preSql = "select #{id}  from user  #{id}";
@@ -116,4 +188,22 @@ public class DefaultSqlHandler implements SqlHandler {
 */
 
     }
+
+    /**
+     * 该方法的作用主要是sql中的参数替换为"?"，方便后续sql注入参数
+     *
+     * @param newSql
+     */
+    private String replaceFiledName(String newSql, Set<String> filedNames, Map<String, String> filedToDBColumn) {
+        for (String filedName : filedNames) {
+            //先替换字段名
+            String replace = "\\#" + "\\{" + filedName + "\\}";
+            String columnName = filedToDBColumn.get(filedName);
+            //字段名替换完成
+            newSql = newSql.replaceAll(replace, columnName);
+        }
+        return newSql;
+    }
+
+
 }

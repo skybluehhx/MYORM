@@ -38,4 +38,6 @@ public interface SqlSession {
 
     public Configuration getConfiguration();
 
+    void commit();
+
 }

@@ -41,12 +41,12 @@ public class test {
 
         u.add(user);
         System.out.println(user);
-
+    /*
         for (int i = 0; i < user.getName().size(); i++) {
             System.out.println(user.getName().get(i));
         }
         System.out.println(user.getId() + " age" + user.getMyAge() + user.getName().size());
-
+*/
         //  System.out.println(configuration.getMapperRegistry().hasMapper(UserDao.class));
         //System.out.println(configuration);
     /*   InputStream inStream = Thread.currentThread().getContextClassLoader()

@@ -118,6 +118,10 @@ public class DefaultSqlSession<T> implements SqlSession {
         return configuration;
     }
 
+    public void commit() {
+        excutor.getTransactionManage().commitTracsactionForCurrentThread();
+    }
+
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
     }

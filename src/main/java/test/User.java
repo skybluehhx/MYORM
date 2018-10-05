@@ -12,7 +12,7 @@ import java.util.List;
  * 2018/8/20 0020.
  */
 @Component
-@ORMTable("TestPerson")
+@ORMTable("user")
 public class User {
 
 
