@@ -26,9 +26,9 @@ public class MyConverter extends Converter<List<String>> {
     public String ConverterColumn(List<String> fieldObject) {
         StringBuilder stringBuilder = new StringBuilder();
         for (String s : fieldObject) {
-            stringBuilder.append(s).append("\\$");
+            stringBuilder.append(s).append("$");
         }
-        return stringBuilder.substring(0, stringBuilder.length() - 2).toString();
+        return stringBuilder.substring(0, stringBuilder.length() - 1).toString();
     }
 
     public List<String> ConverterFiled(Object ColumnObject) {

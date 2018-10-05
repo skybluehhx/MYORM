@@ -17,8 +17,9 @@ public class TestPool {
                 .addMinConnection(10).addMaxConnection(20).build();
 
 
-        Pool pool = new DefaultPool(dataSource);
-     //   PoolConnection poolConnection = pool.getConnection();
+        Pool pool = new DefaultPool();
+        pool.setDataSource(dataSource);
+        //   PoolConnection poolConnection = pool.getConnection();
 
     }
 

@@ -9,7 +9,10 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,8 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 2018/8/25 0025.
  * 提供连接池的基本功能
  */
-@Component
-public abstract class BasePool implements Pool {
+
+public class BasePool implements Pool {
 
     private static Logger logger = Logger.getLogger(BasePool.class);
     //数据源，获取连接数据库的基本信息
@@ -46,16 +49,17 @@ public abstract class BasePool implements Pool {
     //默认步长为4
     private int step;
 
-    public BasePool(DataSource dataSource, BlockingQueue blockingQueue) {
-        this(dataSource, blockingQueue, dataSource.getMinConnection(), 4);
+    public BasePool() {
+        this(new LinkedBlockingQueue());
     }
 
-    public BasePool(DataSource dataSource, BlockingQueue blockingQueue, int step) {
-        this(dataSource, blockingQueue, dataSource.getMinConnection(), step);
+    public BasePool(BlockingQueue blockingQueue) {
+        this.blockingQueue = blockingQueue;
     }
 
-    public BasePool(DataSource dataSource, BlockingQueue<PoolConnection> blockingQueue, int times, int step) {
-        this.dataSource = dataSource;
+
+
+    public BasePool(BlockingQueue<PoolConnection> blockingQueue, int times, int step) {
         this.blockingQueue = blockingQueue;
         this.tryTimes = times;
         this.isInitialization = new AtomicBoolean(false);
@@ -134,7 +138,6 @@ public abstract class BasePool implements Pool {
     }
 
     /**
-     *
      * 归还连接，
      *
      * @param connection
@@ -266,4 +269,35 @@ public abstract class BasePool implements Pool {
 
     }
 
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+
+    public void setPoolSize(AtomicInteger poolSize) {
+        this.poolSize = poolSize;
+    }
+
+
+
+
+    public int getTryTimes() {
+        return tryTimes;
+    }
+
+    public void setTryTimes(int tryTimes) {
+        this.tryTimes = tryTimes;
+    }
+
+    public int getStep() {
+        return step;
+    }
+
+    public void setStep(int step) {
+        this.step = step;
+    }
 }

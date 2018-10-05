@@ -15,15 +15,16 @@ public class DefaultPoolFactory {
     @Autowired
     private static DataSource dataSource;
 
-    public DefaultPoolFactory(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public DefaultPoolFactory() {
+
     }
 
     public static Pool getDefaultPool() {
         if (defaultpool == null) {
             synchronized (DefaultPoolFactory.class) {
                 if (defaultpool == null) {
-                    defaultpool = new DefaultPool(dataSource);
+                    defaultpool = new DefaultPool();
+                    defaultpool.setDataSource(dataSource);
                 }
                 return defaultpool;
             }

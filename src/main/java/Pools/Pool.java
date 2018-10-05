@@ -14,6 +14,8 @@ public interface Pool {
 
     boolean relasePoolConnection(PoolConnection connection);
 
+    void setDataSource(DataSource dataSource);
+
     //
     int getPoolSize();
 

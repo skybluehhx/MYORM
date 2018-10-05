@@ -18,13 +18,13 @@ import java.util.List;
  * Created by zoujianglin
  * 2018/8/19 0019.
  */
-@Component("defaultSqlSession")
+
 public class DefaultSqlSession<T> implements SqlSession {
 
-    @Autowired
+
     private Configuration configuration;
     //记得注入
-    @Autowired
+
     private Excutor excutor;
 
     public <T> T selectOne(int id) {
@@ -126,5 +126,11 @@ public class DefaultSqlSession<T> implements SqlSession {
         this.configuration = configuration;
     }
 
+    public Excutor getExcutor() {
+        return excutor;
+    }
 
+    public void setExcutor(Excutor excutor) {
+        this.excutor = excutor;
+    }
 }

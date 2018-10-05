@@ -17,7 +17,7 @@ import java.sql.SQLException;
 public class BaseTransactionManage implements TransactionManage {
     ThreadLocal<Connection> threadConnections = new ThreadLocal();
 
-    @Autowired()
+    @Autowired
     private Pool pool;
 
 

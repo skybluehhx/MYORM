@@ -19,10 +19,10 @@ import java.util.List;
  * Created by zoujianglin
  * 2018/8/20 0020.
  */
-@Component("excutor")
+
 public class DefaultExcutor implements Excutor {
 
-    @Autowired
+
     private TransactionManage transactionManage;
 
     private ParameterHandler parameterHandler = new DefaultParameterHandler();

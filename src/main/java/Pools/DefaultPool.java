@@ -12,14 +12,5 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class DefaultPool extends BasePool {
 
 
-    public DefaultPool(DataSource dataSource) {
-        super(dataSource, new LinkedBlockingQueue());
-    }
-
-    public DefaultPool(DataSource dataSource, int times) {
-        super(dataSource, new LinkedBlockingQueue(), times);
-
-    }
-
 
 }
