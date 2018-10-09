@@ -30,15 +30,15 @@ public class test {
 
         UserDao userDao = (UserDao) context.getBean("userDao");
         User user = new User();
-       /* user.setId(12);
+        /*user.setId(18);
         user.setMyAge(12);
-        List<String> list =new ArrayList();
-        list.add("2");
-        list.add("7");
+        List<Integer> list =new ArrayList();
+        list.add(2);
+        list.add(7);
         user.setName(list);
-        */
-        user.setId(12);
-        user = userDao.select(user);
+*/
+        //user.setId(18);
+        user=userDao.select(user);
         System.out.println(user);
 
 

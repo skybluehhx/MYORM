@@ -67,7 +67,7 @@ public class SqlHandlerForInsert implements SqlHandler {
                 Field field = model.getClass().getDeclaredField(filedName);
                 //开启访问权限
                 field.setAccessible(true);
-                String converString = "";
+                Object converString = "";
                 if (converter != null) { //有转换器
                     //获取model上该属性的值，并进行转换
                     converString = converter.newInstance().ConverterColumn(field.get(model));
@@ -75,7 +75,7 @@ public class SqlHandlerForInsert implements SqlHandler {
                     converString = (String) field.get(model);
                 }
                 //用转化后的值代替原来的值
-                preSql = preSql.replaceAll(replaceFiledValue, converString);
+                ///preSql = preSql.replaceAll(replaceFiledValue, converString);
             } catch (InstantiationException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e + "转化器异常");

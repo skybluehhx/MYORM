@@ -17,13 +17,13 @@ package support;
  * 使用转换器转换时，确保转换后不会出现数据库运算符号
  */
 
-public abstract class Converter<K> {
+public abstract class Converter<K,V> {
 
     //转换到数据库进行存储
     //一般对于list,map或者对象等使用
-    public abstract  String ConverterColumn(K fieldObject);
+    public abstract  V ConverterColumn(K fieldObject);
 
     //用于转换为对应model的字段
-    public abstract  K ConverterFiled(Object ColumnObject);
+    public abstract  K ConverterFiled(V ColumnObject);
 
 }

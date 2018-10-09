@@ -22,7 +22,7 @@ public class User {
     private int MyAge;
 
     @ORMConverter(MyConverter.class)
-    private List<String> name;
+    private List<Integer> name;
 
 
 
@@ -43,11 +43,11 @@ public class User {
         MyAge = myAge;
     }
 
-   public List<String> getName() {
+   public List<Integer> getName() {
         return name;
    }
 
-    public void setName(List<String> name) {
+    public void setName(List<Integer> name) {
         this.name = name;
   }
 
