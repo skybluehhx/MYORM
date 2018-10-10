@@ -3,6 +3,7 @@ package test;
 
 import anno.ORMDelete;
 import anno.ORMSelect;
+import anno.ORMTransactional;
 import config.Configuration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -38,9 +39,16 @@ public class test {
         user.setName(list);
 */
         //user.setId(18);
-        user=userDao.select(user);
+        user = userDao.select(user);
         System.out.println(user);
+        TestTransaction testTransaction = (TestTransaction) context.getBean("testTransaction");
 
+        testTransaction.test();
 
+    }
+
+    @ORMTransactional
+    public void testTransactional() {
+        System.out.println("11");
     }
 }

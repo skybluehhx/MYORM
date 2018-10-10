@@ -15,7 +15,14 @@ import java.sql.SQLException;
  */
 @Component("transactionManage")
 public class BaseTransactionManage implements TransactionManage {
-    ThreadLocal<Connection> threadConnections = new ThreadLocal();
+    private ThreadLocal<Connection> threadConnections = new ThreadLocal();
+    /*主要用于表示当前连接的事务状态*/
+    private ThreadLocal<TransactionStatus> tanscationStatus=new ThreadLocal(){
+        @Override
+        protected TransactionStatus initialValue() {
+            return TransactionStatus.unopen;
+        }
+    };
 
     @Autowired
     private Pool pool;
@@ -40,17 +47,20 @@ public class BaseTransactionManage implements TransactionManage {
     public boolean beginTransactionForCurrentThread() {
         Connection connection = threadConnections.get();
         if (connection == null) {
-            throw new ConnectionUnopendException("连接未开启，使用事务前确保事务开启");
+            connection= getCurrentThreadConnection();
+      //      throw new ConnectionUnopendException("连接未开启，使用事务前确保事务开启");
         }
 
         try {
             if (connection.getAutoCommit()) {
                 connection.setAutoCommit(false);
+                tanscationStatus.set(TransactionStatus.open);
                 return true;
             }
-            ;
         } catch (SQLException e) {
             e.printStackTrace();
+            tanscationStatus.set(TransactionStatus.unopen);
+            throw new RuntimeException(e);
         }
         return false;
     }
@@ -60,16 +70,24 @@ public class BaseTransactionManage implements TransactionManage {
         if (connection == null) {
           //  throw new ConnectionUnopendException("连接未开启，使用事务前确保事务开启");
         }
-
+        boolean isSuccess=true;
+        tanscationStatus.set(TransactionStatus.runing);
         try {
             if (!connection.getAutoCommit()) {
                 connection.commit();
+                tanscationStatus.set(TransactionStatus.finish);
+                isSuccess=false;
                 return true;
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
+            if(!isSuccess){
+                rollbackTracsactionForCurrentThread();
+                tanscationStatus.set(TransactionStatus.Exception);
+            }
            // realseCurrentThreadConnection();
         }
         return false;
@@ -93,6 +111,10 @@ public class BaseTransactionManage implements TransactionManage {
 
     }
 
+    public TransactionStatus getStatus(){
+        return tanscationStatus.get();
+    }
+
     public Pool getPool() {
         return pool;
     }
@@ -101,5 +123,10 @@ public class BaseTransactionManage implements TransactionManage {
         this.pool = pool;
     }
 }
+
+
+
+
+
 
 
